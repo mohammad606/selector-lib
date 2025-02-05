@@ -1,0 +1,26 @@
+
+*{
+    margin: 0;
+}
+
+.containerS{
+    width: 100%;
+    position: relative;
+    height: fit-content;
+}
+.selectOne{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.labelSelector{
+    opacity: 0.6;
+}
+
+.arrowSelectorOne{
+    width: 25px;
+    height: 25px;
+    transition: 300ms ease-in-out;
+}
