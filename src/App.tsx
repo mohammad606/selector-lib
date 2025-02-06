@@ -3,7 +3,7 @@ import Selector from "./components/selector.tsx";
 function App() {
 
   return (
-     <><Selector/></>
+     <><Selector name={'email'} value={'id'}/></>
   )
 }
 

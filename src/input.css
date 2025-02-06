@@ -54,8 +54,56 @@
     transform: translateY(-50%);
 }
 
-.selectTwo svg{
+.arrowSelectorTow{
    position: absolute;
+    width: 25px;
+    height: 25px;
+    transition: 300ms ease-in-out;
     top: 50%;
     transform: translateY(-50%);
+}
+
+/*-------------------------------------------------------------------------options*/
+
+.containerOptions{
+    position: absolute;
+    width: 96%;
+    top: 110%;
+    left: 2%;
+    background-color: white;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.containerOptions::-webkit-scrollbar {
+    width: 6px; /* عرض شريط التمرير */
+}
+
+.containerOptions::-webkit-scrollbar-track {
+    background: #f1f1f1; /* لون خلفية المسار */
+    border-radius: 10px; /* زوايا مدورة */
+}
+
+.containerOptions::-webkit-scrollbar-thumb {
+    background: #888; /* لون شريط التمرير */
+    border-radius: 10px; /* زوايا مدورة */
+}
+
+.containerOptions::-webkit-scrollbar-thumb:hover {
+    background: #555; /* لون شريط التمرير عند التمرير */
+}
+
+.containerOptions div{
+    width: calc(100% - 6px);
+    cursor: pointer;
+    padding: 0px 10px;
+    display: flex;
+    align-items: center;
+}
+
+.containerOptions div p{
+    height: fit-content;
 }
