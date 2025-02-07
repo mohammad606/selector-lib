@@ -1,6 +1,8 @@
 import Selector from "./components/selector.tsx";
+import {useState} from "react";
 
 function App() {
+  let [ad,setA] = useState('')
   const fetchProjects = async (page: number,search:string) => {
     const response = await fetch(`https://api.planetofmedicine.com/api/service-categories?page=${page}&search=${search}`);
     const data = await response.json();
@@ -18,7 +20,7 @@ function App() {
     {name: 'goodmorning', id: 8}
   ]
   return (
-     <><Selector KeyShowFn={(item)=>item.name} search={false} array={dataa}  key={'name'} value={'id'}/></>
+     <><Selector KeyShowFn={(item)=>item.name} search={true} getValue={(item)=>setA(item)} array={dataa} multiSelect={true} key={'name'} value={'id'}/></>
   )
 }
 

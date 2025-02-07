@@ -9,6 +9,24 @@
     height: fit-content;
 }
 
+
+.showValue{
+    margin: 4px;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+.showValue span{
+    padding: 5px 8px;
+    color: black;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+.showValue span:hover{
+    background-color:white !important;
+}
+
+
 /*------------------------------------------------------------------- Selector One*/
 .selectOne{
     display: flex;
