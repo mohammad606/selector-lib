@@ -29,6 +29,12 @@ interface SelectorProps {
     getValue: (item: any) => any;
     multiSelect?: boolean;
     closeOnSelect?: boolean;
+    nameFormHook?: string;
+    setValueFormHook?<TFieldName extends string, TValue>(
+        name: TFieldName,
+        value: TValue,
+        options?: any
+    ): void
 }
 
 
@@ -56,7 +62,9 @@ const Selector = (
         KeyShowFn = (item: any) => item,
         getValue,
         multiSelect = false,
-        closeOnSelect = true
+        closeOnSelect = true,
+        nameFormHook,
+        setValueFormHook,
     }
         : SelectorProps
 ) => {
@@ -88,9 +96,8 @@ const Selector = (
             return await handleGetApi(pageParam, searchInput);
         },
         initialPageParam: 0,
-        getNextPageParam: (lastPage) => {
-            console.log(lastPage.data.page)
-            return lastPage.data.page + 1;
+        getNextPageParam: (lastPage, allPages) => {
+            return lastPage?.data?.length ? allPages.length + 1 : undefined;
         },
 
         staleTime: Infinity,
@@ -98,7 +105,6 @@ const Selector = (
         retry: 10,
         retryDelay: 100,
     })
-    console.log(data)
     const handleSearchArray = (searchInput: string) => {
         if (array && search) {
             return array.filter((item) => {
@@ -124,13 +130,13 @@ const Selector = (
         }
     };
     const dropdownRef = useRef<HTMLDivElement | null>(null);
-    const selectRef = useRef<HTMLDivElement>(null); // 🔹 مرجع لعناصر القائمة
+    const selectRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 dropdownRef.current && dropdownRef.current.contains(event.target as Node) ||
-                selectRef.current && selectRef.current.contains(event.target as Node) // 🔹 إضافة `selectRef`
+                selectRef.current && selectRef.current.contains(event.target as Node)
             ) {
                 return;
             }
@@ -145,6 +151,9 @@ const Selector = (
 
     useEffect(() => {
         getValue(valueStore.value)
+        if(nameFormHook && setValueFormHook){
+            setValueFormHook(nameFormHook, valueStore.value)
+        }
     }, [valueStore]);
 
     const handleShowValue = () => {

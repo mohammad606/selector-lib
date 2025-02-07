@@ -1,5 +1,6 @@
 import Selector from "./components/selector.tsx";
 import {useState} from "react";
+import {useForm, useFormContext} from "react-hook-form";
 
 function App() {
   let [ad,setA] = useState('')
@@ -19,9 +20,14 @@ function App() {
     {name: 'goodnight', id: 7},
     {name: 'goodmorning', id: 8}
   ]
-  console.log(ad)
+  const {register, handleSubmit, watch,setValue} = useForm()
+  const onSubmit = (data) => console.log(data)
   return (
-     <><Selector  KeyShowFn={(item)=>item.email} search={true} getValue={(item)=>setA(item)} apiFn={fetchProjects} multiSelect={false}  value={'id'}/></>
+     <form onSubmit={handleSubmit(onSubmit)}><Selector nameFormHook={'dark'} setValueFormHook={setValue} KeyShowFn={(item)=>item.email} search={true} getValue={(item)=>setA(item)} apiFn={fetchProjects} multiSelect={true}  value={'email'}/>
+
+       <input type="submit" />
+
+     </form>
   )
 }
 
