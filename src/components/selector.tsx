@@ -4,6 +4,7 @@ import {useInfiniteQuery} from "@tanstack/react-query";
 
 interface SelectorProps {
     value: string,
+    labelColor?: string,
     selectorColor?: string,
     borderWidth?: string,
     borderStyle?: string,
@@ -27,12 +28,14 @@ interface SelectorProps {
     KeyShowFn: (item: any) => string;
     getValue: (item: any) => any;
     multiSelect?: boolean;
+    closeOnSelect?: boolean;
 }
 
 
 const Selector = (
     {
         value,
+        labelColor = '#000',
         selectorColor = '#000',
         borderWidth = '2px',
         borderStyle = "solid",
@@ -52,7 +55,8 @@ const Selector = (
         array,
         KeyShowFn = (item: any) => item,
         getValue,
-        multiSelect
+        multiSelect = false,
+        closeOnSelect = true
     }
         : SelectorProps
 ) => {
@@ -84,15 +88,17 @@ const Selector = (
             return await handleGetApi(pageParam, searchInput);
         },
         initialPageParam: 0,
-        getNextPageParam: (lastPage, allPages) => {
-            return lastPage?.data?.length ? allPages.length + 1 : undefined;
+        getNextPageParam: (lastPage) => {
+            console.log(lastPage.data.page)
+            return lastPage.data.page + 1;
         },
+
         staleTime: Infinity,
         refetchOnWindowFocus: false,
         retry: 10,
         retryDelay: 100,
     })
-
+    console.log(data)
     const handleSearchArray = (searchInput: string) => {
         if (array && search) {
             return array.filter((item) => {
@@ -103,25 +109,34 @@ const Selector = (
         }
     }
 
-    const flattenedData = array ? handleSearchArray(searchInput) : data?.pages.flatMap(page => page.data.data) || [];
+    const flattenedData = array ? handleSearchArray(searchInput) : data?.pages.flatMap(page =>{
+        if(Array.isArray(page.data)){
+           return page.data
+        }else {
+            return  page.data.data
+        }
+    }) || [];
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const {scrollTop, scrollHeight, clientHeight} = e.currentTarget;
-        if (scrollHeight - scrollTop === clientHeight && hasNextPage && !isFetchingNextPage) {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollHeight - scrollTop <= clientHeight + 5 && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
         }
     };
     const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const selectRef = useRef<HTMLDivElement>(null); // 🔹 مرجع لعناصر القائمة
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && dropdownRef.current.contains(event.target as Node)) {
+            if (
+                dropdownRef.current && dropdownRef.current.contains(event.target as Node) ||
+                selectRef.current && selectRef.current.contains(event.target as Node) // 🔹 إضافة `selectRef`
+            ) {
                 return;
-            } else {
-                setOpen(false);
             }
-
+            setOpen(false);
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -131,11 +146,10 @@ const Selector = (
     useEffect(() => {
         getValue(valueStore.value)
     }, [valueStore]);
-    console.log(valueStore)
 
     const handleShowValue = () => {
         return (
-            <div className={'showValue'} style={{display: `${valueStore.key ? 'flex' : 'none'}`}}>
+            <div className={'showValue'} style={{display: `${Array.isArray(valueStore.key) && valueStore.key.length || (String(valueStore.key) && valueStore.key) ? 'flex' : 'none'}`}}>
                 {multiSelect && Array.isArray(valueStore.key) ? (
                     valueStore.key.map((e, index) => <span style={{backgroundColor:selectedColor}} key={index}
                                                            onClick={() => {
@@ -152,19 +166,29 @@ const Selector = (
             </div>
         )
     }
+    const handleLabel = (className:string) => {
+        return (
+            <p className={className}
+               style={{
+                   color: `${labelColor}`,
+                   left: `${px}`,
+                   display: `${Array.isArray(valueStore.key) && valueStore.key.length || (String(valueStore.key) && valueStore.key) ? 'none' : ""}`
+               }}>{label}</p>
+        )
+    }
 
     return (
         <div style={{width: '40%', margin: '50px'}}>
             <div className={'containerS'}>
-                <div className={'selectOne'} onClick={() => setOpen(!open)}
+                {/*------------------------------------------------------------------------------------------------------------------Selector*/}
+                <div className={'selectOne'}  ref={selectRef}    onClick={() => setOpen(prev => !prev)}
                      style={{
-                         display: `${search ? "none" : ""}`,
                          border: `${borderWidth} ${selectorColor} ${borderStyle}`,
                          borderRadius: `${borderRadius}`,
                          padding: `${py} ${px}`
                      }}>
                     {handleShowValue()}
-                    <p className={'labelSelectorOne'} style={{color: `${selectorColor}`}}>{label}</p>
+                    {handleLabel("labelSelectorOne")}
                     <svg xmlns="http://www.w3.org/2000/svg" style={{rotate: `${open ? "90deg" : ""}`}}
                          className={'arrowSelectorOne'} viewBox="0 0 12 24">
                         <defs>
@@ -174,39 +198,17 @@ const Selector = (
                         <use fillRule="evenodd" href="#weuiArrowOutlined0" transform="rotate(-180 5.02 9.505)"/>
                     </svg>
                 </div>
-                <div className={'selectTwo'} onClick={() => setOpen(!open)}
-                     style={{
-                         display: `${search ? "" : "none"}`,
-                         border: `${borderWidth} ${selectorColor} ${borderStyle}`,
-                         borderRadius: `${borderRadius}`
-                     }}
-                >
-                    {handleShowValue()}
-                    <input type={'text'}
-                           onChange={(e) => {
-                        setSearchInput(e.target.value);
-                    }}
-                           style={{padding: `${py} ${px}`, borderRadius: `${borderRadius}`, color: `${searchColor}`}}/>
-                    <p className={'labelSelectorTwo'}
-                       style={{
-                           color: `${selectorColor}`,
-                           left: `${px}`,
-                           display: `${Array.isArray(valueStore.key) && valueStore.key.length ? 'none' : ""}`
-                       }}>{searchInput ? "" : label}</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" style={{
-                        rotate: `${open ? "90deg" : ""}`,
-                        transform: `${open ? 'translateX(-50%)' : ""}`,
-                        right: `${px}`
-                    }} className={'arrowSelectorTow'} viewBox="0 0 12 24">
-                        <defs>
-                            <path id="weuiArrowOutlined0" fill={selectorColor}
-                                  d="m7.588 12.43l-1.061 1.06L.748 7.713a.996.996 0 0 1 0-1.413L6.527.52l1.06 1.06l-5.424 5.425z"/>
-                        </defs>
-                        <use fillRule="evenodd" href="#weuiArrowOutlined0" transform="rotate(-180 5.02 9.505)"/>
-                    </svg>
-                </div>
+                {/*------------------------------------------------------------------------------------------------------------------Options*/}
                 <div ref={dropdownRef} className={'containerOptions'} onScroll={(e) => handleScroll(e)}
                      style={{borderRadius: `${containerOptionsRadius}`, display: `${open ? "" : "none"}`}}>
+                        {/*-----------------------------------------------------------------------------------------------------------search*/}
+                        <input className={'searchInput'} type={'text'}
+                               onChange={(e) => {
+                                   setSearchInput(e.target.value);
+                               }}
+                               style={{ color: `${searchColor}`,border: `${borderWidth} ${selectorColor} ${borderStyle}`,display: `${search ? "" : "none"}`,
+                               }}/>
+
                     {flattenedData?.map((item, index) => {
                         const isSelected = multiSelect
                             ? Array.isArray(valueStore.value) && valueStore.value.includes(item[value as keyof typeof item])
@@ -228,6 +230,9 @@ const Selector = (
                                             value: item[value as keyof typeof item]
                                         });
                                     }
+                                    if(!multiSelect && closeOnSelect){
+                                        setOpen(false)
+                                    }
                                 }}
                                 key={index}
                                 style={{
@@ -242,8 +247,7 @@ const Selector = (
                             </div>
                         );
                     })}
-                    {isFetchingNextPage && <p>جاري التحميل...</p>}
-
+                    {isFetchingNextPage && <div className={'loadingOptions'}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeDasharray="16" strokeDashoffset="16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3c4.97 0 9 4.03 9 9"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="16;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></svg></div>}
                 </div>
             </div>
 

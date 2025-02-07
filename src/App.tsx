@@ -4,7 +4,7 @@ import {useState} from "react";
 function App() {
   let [ad,setA] = useState('')
   const fetchProjects = async (page: number,search:string) => {
-    const response = await fetch(`https://api.planetofmedicine.com/api/service-categories?page=${page}&search=${search}`);
+    const response = await fetch(`https://reqres.in/api/users?page=${page}&search=${search}`);
     const data = await response.json();
     return {data};
   };
@@ -19,8 +19,9 @@ function App() {
     {name: 'goodnight', id: 7},
     {name: 'goodmorning', id: 8}
   ]
+  console.log(ad)
   return (
-     <><Selector KeyShowFn={(item)=>item.name} search={true} getValue={(item)=>setA(item)} array={dataa} multiSelect={true} key={'name'} value={'id'}/></>
+     <><Selector  KeyShowFn={(item)=>item.email} search={true} getValue={(item)=>setA(item)} apiFn={fetchProjects} multiSelect={false}  value={'id'}/></>
   )
 }
 
