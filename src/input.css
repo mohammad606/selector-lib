@@ -11,7 +11,7 @@
 
 
 .showValue{
-    margin: 4px;
+    margin-left: 4px;
     gap: 3px;
     flex-wrap: wrap;
 }
@@ -48,38 +48,16 @@
 
 /*------------------------------------------------------------------- Selector Two*/
 
-.selectTwo{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    position: relative;
+.searchInput{
+    position: sticky;
+    top: 5px;
+    z-index: 10;
+    width: calc(100% - 32px);
+    margin: 5px;
+    border-radius: 15px;
+    padding: 5px 12px;
 }
 
-.selectTwo input{
-    border: none;
-    width: 100%;
-    height: 100%;
-
-}
-.selectTwo input:focus{
-    outline: none;
-}
-.labelSelectorTwo{
-    opacity: 0.6;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.arrowSelectorTow{
-   position: absolute;
-    width: 25px;
-    height: 25px;
-    transition: 300ms ease-in-out;
-    top: 50%;
-    transform: translateY(-50%);
-}
 
 /*-------------------------------------------------------------------------options*/
 
@@ -124,4 +102,17 @@
 
 .containerOptions div p{
     height: fit-content;
+}
+
+/*-------------------------------------------------------------------loading*/
+
+
+.loadingOptions{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.loadingOptions svg{
+    width: 20px;
+    height: 20px;
 }
